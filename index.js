@@ -1,12 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 200;
-const baseAPIURL = "/api/v1/diwata/";
-const gameId = 90250;
-const email = "kdkeann@gmail.com";
-const password = "kenkenPuGe051691";
-const currencyId = "01J0HS6B9GJ3CV1H0G2ZYFHS0D";
+const baseAPIURL = process.env.BASE_API_URL || "/api/v1/diwata/";
+const gameId = process.env.GAME_ID;
+const email = process.env.EMAIL;
+const password = process.env.PASSWORD;
+const currencyId = process.env.CURRENCY_ID;
 
 app.use(express.json());
 let autoToken = "";
