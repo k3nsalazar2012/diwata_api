@@ -18,6 +18,15 @@ session.startSession().then(response => {
     }
 });
 
+setInterval(async () => {
+    try {
+        await session.maintainSession(sessionToken);
+        console.log('session maintained');
+    } catch (error) {
+        console.error('error maintaining session:', error);
+    }
+}, 3300000); 
+
 app.post(`${baseAPIURL}gift/gold`, async(req, res) => {
     try {
         const {sender_id, receiver_id, amount} = req.body;
