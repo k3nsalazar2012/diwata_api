@@ -1,5 +1,8 @@
 # diwata_api
 
+**Auth Token** 
 ```
-print('Hellow World')
+curl -X POST "https://diwata.site/api/v1/diwata/auth/token" \
+    -H "x-server-key": {server_key} \
 ```
+
