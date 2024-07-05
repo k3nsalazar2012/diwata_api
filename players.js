@@ -2,7 +2,7 @@ const axios = require('axios');
 
 async function getPlayerUlidFromPlayerId(playerId) {
     try {
-        const response = await axios.get(`https://api.lootlocker.io/server/players/lookup/name?player_public_uid=${playerId}`, {
+        const response = await axios.get(`https://api.lootlocker.io/server/players/lookup/name?player_id=${playerId}`, {
             headers: {
                 'x-auth-token': sessionToken
             }
