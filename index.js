@@ -4,6 +4,7 @@ const app = express();
 const session = require('./session');
 const balances = require('./balances');
 const players = require('./players');
+const inventory = require('./inventory');
 const PORT = process.env.PORT || 200;
 const baseAPIURL = process.env.BASE_API_URL || "/api/v1/diwata/";
 
@@ -58,6 +59,21 @@ app.post(`${baseAPIURL}gift/gold`, async(req, res) => {
     }
     catch(error) {
         console.error('Error in /gift/gold:', error);
+        res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+});
+
+app.post(`${baseAPIURL}gift/asset`, async(req, res) => {
+    try {
+        const { player_id, asset_id } = req.body;
+        const status = await inventory.giftAsset(player_id, asset_id);
+        const response = {
+            status: status
+        }
+        res.json(response);
+    }
+    catch(error) {
+        console.error('Error in /gift/asset:', error);
         res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
