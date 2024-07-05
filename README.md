@@ -18,6 +18,7 @@ response:
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/gold" \
     -H "authorization": {token} \
+    -d "{\"sender_id\": 6320090, \"receiver_id\": 6320618}, \"amount\": 100"
 ```
 
 response:
@@ -42,3 +43,58 @@ response:
 }
 ```
 
+
+**Send Book of Faces / Scrolls of Nature** 
+```
+curl -X POST "https://diwata.site/api/v1/diwata/gift/asset" \
+    -H "authorization": {token} \
+    -d "{\"player_id\": 6320618, \"asset_id\": 664824}"
+```
+
+response:
+```
+{
+    "status": {
+        "items": [
+            {
+                "instance_id": 47633251,
+                "variation_id": null,
+                "rental_option_id": null,
+                "acquisition_source": "grant_server_api",
+                "asset": {
+                    "id": 664824,
+                    "live_asset_id": 664823,
+                    "has_changes": 0,
+                    "context_id": 235255,
+                    "asset_type_id": null,
+                    "default_variation_id": null,
+                    "rarity_id": null,
+                    "price": 0,
+                    "sales_price": 0,
+                    "popular": 0,
+                    "popularity_score": 0,
+                    "name": "Bathala",
+                    "type": "5",
+                    "active": 1,
+                    "purchasable": 0,
+                    "rentable": 0,
+                    "unique_instance": 0,
+                    "min_game_version_id": null,
+                    "marked_new": "2024-06-16 23:40:50",
+                    "created_at": "2024-06-16 23:40:50",
+                    "updated_at": "2024-06-23 00:34:36",
+                    "deleted_at": null,
+                    "uuid": "1acd4855-a9ff-415e-af3e-47fc3674d689",
+                    "ulid": "01J0HPSJABDB926VA0EDDXYA1J"
+                },
+                "rental": {
+                    "is_rental": false,
+                    "time_left": null,
+                    "duration": null,
+                    "is_active": null
+                }
+            }
+        ]
+    }
+}
+```
