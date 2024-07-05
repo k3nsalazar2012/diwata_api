@@ -5,7 +5,7 @@
 *token expires in 1 hour*
 
 ```
-curl -X POST "https://diwata.site/api/v1/diwata/auth/token" \
+curl -X GET "https://diwata.site/api/v1/diwata/auth/token" \
     -H "x-server-key": {server_key} \
 ```
 
