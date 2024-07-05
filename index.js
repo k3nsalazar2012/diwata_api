@@ -5,8 +5,11 @@ const session = require('./session');
 const balances = require('./balances');
 const players = require('./players');
 const inventory = require('./inventory');
+const auth = require('./auth');
+
 const PORT = process.env.PORT || 200;
 const baseAPIURL = process.env.BASE_API_URL || "/api/v1/diwata/";
+const SERVER_KEY = process.env.SERVER_KEY;
 
 app.use(express.json());
 
@@ -28,7 +31,18 @@ setInterval(async () => {
     }
 }, 3300000); 
 
-app.post(`${baseAPIURL}gift/gold`, async(req, res) => {
+app.get(`${baseAPIURL}auth/token`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+
+    const token = auth.generateToken();
+    res.json({ token: token });
+});
+
+app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
     try {
         const {sender_id, receiver_id, amount} = req.body;
 
@@ -63,7 +77,7 @@ app.post(`${baseAPIURL}gift/gold`, async(req, res) => {
     }
 });
 
-app.post(`${baseAPIURL}gift/asset`, async(req, res) => {
+app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
     try {
         const { player_id, asset_id } = req.body;
         const status = await inventory.giftAsset(player_id, asset_id);
