@@ -1,6 +1,8 @@
-# diwata_api
+# Diwata api
 
-**Auth Token** 
+***Auth Token***
+token expires in 1 hour
+
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/auth/token" \
     -H "x-server-key": {server_key} \
@@ -14,7 +16,7 @@ response:
 }
 ```
 
-**Send Gold** 
+***Send Gold***
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/gold" \
     -H "authorization": {token} \
@@ -44,7 +46,15 @@ response:
 ```
 
 
-**Send Book of Faces / Scrolls of Nature** 
+***Send Book of Faces / Scrolls of Nature***
+Two api calls needed.
+
+**1. loot locker sdk**
+```
+LootLockerSDKManager.DeleteAssetInstanceFromPlayerInventory(int assetInstanceID, System.Action<LootLocker.LootLockerResponse> onComplete);
+```
+
+**2. server api**
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/asset" \
     -H "authorization": {token} \
