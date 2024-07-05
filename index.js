@@ -2,45 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
+const session = require('./session');
 const PORT = process.env.PORT || 200;
 const baseAPIURL = process.env.BASE_API_URL || "/api/v1/diwata/";
 const gameId = process.env.GAME_ID;
-const email = process.env.EMAIL;
-const password = process.env.PASSWORD;
 const currencyId = process.env.CURRENCY_ID;
 
 app.use(express.json());
-let autoToken = "";
-
-async function loginToServer(email, password) {
-    try {
-        const response = await axios.post('https://api.lootlocker.io/admin/v1/session', {
-        email: email,
-        password: password
-        }, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-        });
-
-        if (response.status === 200) {
-            console.log('Login successful:', response.data);
-        return response.data;
-        } else {
-            console.log('Login failed:', response.status);
-        return null;
-        }
-    } catch (error) {
-        console.error('Error during login:', error);
-        return null;
-    }
-}
 
 async function getWalletIdForHolder(holderId) {
     try {
         const response = await axios.get(`https://api.lootlocker.io/admin/game/${gameId}/wallet/holder/${holderId}`, {
             headers: {
-                'x-auth-token': autoToken
+                'x-auth-token': sessionToken
             }
         });
 
@@ -63,7 +37,7 @@ async function creditBalance(walletId, amount) {
         },
         {
             headers: {
-                'x-auth-token': autoToken,
+                'x-auth-token': sessionToken,
                 'Content-Type': 'application/json'
             }
         });
@@ -88,7 +62,7 @@ async function debitBalance(walletId, amount) {
         },
         {
             headers: {
-                'x-auth-token': autoToken,
+                'x-auth-token': sessionToken,
                 'Content-Type': 'application/json'
             }
         });
@@ -109,7 +83,7 @@ async function getPlayerIdByUsername(username) {
         const response = await axios.get(`https://api.lootlocker.io/admin/game/${gameId}/player/search?query=${username}`,
         {
             headers: {
-                'x-auth-token': autoToken,
+                'x-auth-token': sessionToken,
             }
         });
 
@@ -136,7 +110,7 @@ async function getPlayerUlidByPlayerId(playerId) {
         const response = await axios.get(`https://api.lootlocker.io/admin/v1/game/${gameId}/player/${playerId}`,
         {
             headers: {
-                'x-auth-token': autoToken,
+                'x-auth-token': sessionToken,
             }
         });
 
@@ -159,7 +133,7 @@ async function createWallet(playerUlid) {
         },
         {
             headers: {
-                'x-auth-token': autoToken,
+                'x-auth-token': sessionToken,
                 'Content-Type': 'application/json'
             }
         });
@@ -175,13 +149,13 @@ async function createWallet(playerUlid) {
     }
 }
 
-loginToServer(email, password).then(loginResponse => {
-if (loginResponse) {
-    autoToken = loginResponse.auth_token;
-    console.log('Auto-login successful, token: ', autoToken);
-} else {
-    console.log('Auto-login failed');
-}
+session.startSession().then(response => {
+    if (response) {
+        sessionToken = response.token;
+        console.log('session started, token: ', sessionToken);
+    } else {
+        console.log('error starting session');
+    }
 });
 
 app.get(`${baseAPIURL}gift/gold`, async (req, res) => {
