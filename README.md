@@ -1,6 +1,7 @@
 # Diwata api
 
 ***Auth Token***
+
 *token expires in 1 hour*
 
 ```
@@ -17,6 +18,7 @@ response:
 ```
 
 ***Send Gold***
+
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/gold" \
     -H "authorization": {token} \
@@ -47,6 +49,7 @@ response:
 
 
 ***Send Book of Faces / Scrolls of Nature***
+
 *Two api calls needed.*
 
 **1. loot locker sdk**
