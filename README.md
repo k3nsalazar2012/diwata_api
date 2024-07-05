@@ -1,7 +1,7 @@
 # Diwata api
 
 ***Auth Token***
-token expires in 1 hour
+*token expires in 1 hour*
 
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/auth/token" \
@@ -47,7 +47,7 @@ response:
 
 
 ***Send Book of Faces / Scrolls of Nature***
-Two api calls needed.
+*Two api calls needed.*
 
 **1. loot locker sdk**
 ```
