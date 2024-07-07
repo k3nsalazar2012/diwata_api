@@ -46,6 +46,10 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
     try {
         const {sender_id, receiver_id, amount} = req.body;
 
+        if (!sender_id || !receiver_id || !amount) {
+            return res.status(400).json({ error: 'Missing required fields in request body' });
+        }
+
         const senderUlid = await players.getPlayerUlidFromPlayerId(sender_id);
         const receiverUlid = await players.getPlayerUlidFromPlayerId(receiver_id);
 
@@ -73,13 +77,18 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
     }
     catch(error) {
         console.error('Error in /gift/gold:', error);
-        //res.status(500).json({ error: 'An unexpected error occurred' });
+        res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
 app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
     try {
         const { player_id, asset_id } = req.body;
+
+        if (!player_id || !asset_id || !amount) {
+            return res.status(400).json({ error: 'Missing required fields in request body' });
+        }
+
         const status = await inventory.giftAsset(player_id, asset_id);
         const response = {
             status: status
@@ -88,7 +97,7 @@ app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
     }
     catch(error) {
         console.error('Error in /gift/asset:', error);
-        //res.status(500).json({ error: 'An unexpected error occurred' });
+        res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
