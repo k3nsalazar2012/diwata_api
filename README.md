@@ -21,7 +21,7 @@ response:
 
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/gold" \
-    -H "authorization": {token} \
+    -H "authorization": \"Bearer {token}\" \
     -d "{\"sender_id\": 6320090, \"receiver_id\": 6320618}, \"amount\": 100"
 ```
 
@@ -60,7 +60,7 @@ LootLockerSDKManager.DeleteAssetInstanceFromPlayerInventory(int assetInstanceID,
 **2. server api**
 ```
 curl -X POST "https://diwata.site/api/v1/diwata/gift/asset" \
-    -H "authorization": {token} \
+    -H "authorization": \"Bearer {token}\" \
     -d "{\"player_id\": 6320618, \"asset_id\": 664824}"
 ```
 

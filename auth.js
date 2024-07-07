@@ -17,11 +17,13 @@ function verifyToken(token) {
 }
 
 function authenticateToken(req, res, next) {
-    const token = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
 
-    if (!token) {
+    if (!authHeader) {
         return res.sendStatus(401);
     }
+
+    const token = authHeader.split(' ')[1];
 
     if (verifyToken(token)) {
         next();
