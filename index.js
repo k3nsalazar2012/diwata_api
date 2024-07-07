@@ -57,7 +57,7 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
         if(senderWalletId == null)
             senderWalletId = await balances.createWallet(senderUlid);
 
-        const receiverWalletId = await balances.getWalletIdForHolder(receiverUlid);
+        let receiverWalletId = await balances.getWalletIdForHolder(receiverUlid);
         if(receiverWalletId == null)
             receiverWalletId = await balances.createWallet(receiverUlid);
 
