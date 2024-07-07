@@ -53,7 +53,7 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
             res.status(500).json({ error: 'An unexpected error occurred' });
         }
 
-        const senderWalletId = await balances.getWalletIdForHolder(senderUlid);
+        let senderWalletId = await balances.getWalletIdForHolder(senderUlid);
         if(senderWalletId == null)
             senderWalletId = await balances.createWallet(senderUlid);
 
@@ -61,7 +61,7 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
         if(receiverWalletId == null)
             receiverWalletId = await balances.createWallet(receiverUlid);
 
-        const senderStatus = await balances.debitBalance(senderWalletId, amount + 1);
+        const senderStatus = await balances.debitBalance(senderWalletId, amount);
         const receiverStatus = await balances.creditBalance(receiverWalletId, amount);
 
         const response = {
