@@ -73,7 +73,7 @@ app.post(`${baseAPIURL}gift/gold`, auth.authenticateToken, async(req, res) => {
     }
     catch(error) {
         console.error('Error in /gift/gold:', error);
-        res.status(500).json({ error: 'An unexpected error occurred' });
+        //res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
@@ -88,7 +88,7 @@ app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
     }
     catch(error) {
         console.error('Error in /gift/asset:', error);
-        res.status(500).json({ error: 'An unexpected error occurred' });
+        //res.status(500).json({ error: 'An unexpected error occurred' });
     }
 });
 
