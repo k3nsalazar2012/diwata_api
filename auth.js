@@ -20,6 +20,7 @@ function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
+        console.log('empty header');
         return res.sendStatus(401);
     }
 
@@ -28,6 +29,7 @@ function authenticateToken(req, res, next) {
     if (verifyToken(token)) {
         next();
     } else {
+        console.log(`error processing token: ${token}`);
         return res.sendStatus(403);
     }
 }
