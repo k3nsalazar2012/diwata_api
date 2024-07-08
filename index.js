@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { db, updateWorldGold, updatePotGold } = require('./database');
+const { db, updateGold, updateBothGold, getGoldValueByType } = require('./database');
 const app = express();
 const session = require('./session');
 const balances = require('./balances');
@@ -102,14 +102,42 @@ app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
     }
 });
 
-app.get(`${baseAPIURL}gold/world`, (req, res) => {
-    const row = db.prepare('SELECT value FROM gold WHERE type = \'world-gold\'').get();
-    res.json({ type: 'world-gold', value: row.value });
-  });
+app.get(`${baseAPIURL}gold/world`, async (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+
+    try {
+        const value = await getGoldValueByType('world-gold');
+        if (value !== null) {
+            res.json({ type: 'world-gold', value: value });
+        } else {
+            res.status(404).json({ error: 'Gold type not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching world-gold value:', err);
+        res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+});
   
-app.get(`${baseAPIURL}gold/pot`, (req, res) => {
-    const row = db.prepare('SELECT value FROM gold WHERE type = \'pot-gold\'').get();
-    res.json({ type: 'pot-gold', value: row.value });
+app.get(`${baseAPIURL}gold/pot`, async (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+
+    try {
+        const value = await getGoldValueByType('pot-gold');
+        if (value !== null) {
+            res.json({ type: 'pot-gold', value: value });
+        } else {
+            res.status(404).json({ error: 'Gold type not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching pot-gold value:', err);
+        res.status(500).json({ error: 'An unexpected error occurred' });
+    }
 });
 
 app.get(`${baseAPIURL}activity/rest`, (req, res) => {
@@ -119,8 +147,14 @@ app.get(`${baseAPIURL}activity/rest`, (req, res) => {
     }
 
     const amount = 2.5;
-    updateWorldGold(amount);
-    res.json({ status: 'success', activity: 'rest' });
+    updateGold('world-gold', amount)
+        .then(updatedValue => {
+            res.json({ status: 'success', activity: 'rest' });
+        })
+        .catch(err => {
+            console.error('Error updating world-gold:', err);
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        });
 });
 
 app.get(`${baseAPIURL}activity/bless`, (req, res) => {
@@ -130,8 +164,14 @@ app.get(`${baseAPIURL}activity/bless`, (req, res) => {
     }
     
     const amount = 2.5;
-    updateWorldGold(amount);
-    res.json({ status: 'success', activity: 'bless' });
+    updateGold('world-gold', amount)
+        .then(updatedValue => {
+            res.json({ status: 'success', activity: 'bless' });
+        })
+        .catch(err => {
+            console.error('Error updating world-gold:', err);
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        });
 });
 
 app.get(`${baseAPIURL}activity/help/person`, (req, res) => {
@@ -141,8 +181,14 @@ app.get(`${baseAPIURL}activity/help/person`, (req, res) => {
     }
     
     const amount = 2.5;
-    updateWorldGold(amount);
-    res.json({ status: 'success', activity: 'help person' });
+    updateGold('world-gold', amount)
+        .then(updatedValue => {
+            res.json({ status: 'success', activity: 'help person' });
+        })
+        .catch(err => {
+            console.error('Error updating world-gold:', err);
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        });
 });
 
 app.get(`${baseAPIURL}activity/help/creature`, (req, res) => {
@@ -152,8 +198,14 @@ app.get(`${baseAPIURL}activity/help/creature`, (req, res) => {
     }
     
     const amount = 2.5;
-    updateWorldGold(amount);
-    res.json({ status: 'success', activity: 'help creature' });
+    updateGold('world-gold', amount)
+        .then(updatedValue => {
+            res.json({ status: 'success', activity: 'help creature' });
+        })
+        .catch(err => {
+            console.error('Error updating world-gold:', err);
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        });
 });
 
 app.get(`${baseAPIURL}activity/rank`, (req, res) => {
@@ -164,9 +216,18 @@ app.get(`${baseAPIURL}activity/rank`, (req, res) => {
     
     const worldAmount = 2;
     const potAmount = 1;
-    updateWorldGold(worldAmount);
-    updatePotGold(potAmount);
-    res.json({ status: 'success', activity: 'daily rank' });
+
+    updateBothGold(worldAmount, potAmount)
+        .then(([updatedWorldValue, updatedPotValue]) => {
+            res.json({
+                status: 'success',
+                activity: 'join daily rank'
+            });
+        })
+        .catch(err => {
+            console.error('Error updating gold values:', err);
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        });
 });
 
 app.listen(PORT, () => {

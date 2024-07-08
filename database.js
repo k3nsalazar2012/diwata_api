@@ -1,34 +1,71 @@
-const Database = require('better-sqlite3');
-const db = new Database('diwata.db');
+const sqlite3 = require('sqlite3').verbose();
 
-db.prepare(`CREATE TABLE IF NOT EXISTS gold (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  type TEXT UNIQUE NOT NULL,
-  value REAL NOT NULL
-)`).run();
+// Connect to the SQLite database
+const db = new sqlite3.Database('diwata.db', (err) => {
+    if (err) {
+        console.error('Error opening database:', err.message);
+    } else {
+        console.log('Connected to the database.');
+    }
+});
 
-const worldGold = db.prepare('SELECT * FROM gold WHERE type = \'world-gold\'').get();
-if (!worldGold) {
-  db.prepare('INSERT INTO gold (type, value) VALUES (\'world-gold\', 0)').run();
+// Create gold table if it doesn't exist
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS gold (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT UNIQUE NOT NULL,
+        value REAL NOT NULL
+    )`);
+
+    // Initialize world-gold and pot-gold if they don't exist
+    db.get('SELECT * FROM gold WHERE type = ?', 'world-gold', (err, row) => {
+        if (!row) {
+            db.run('INSERT INTO gold (type, value) VALUES (?, ?)', 'world-gold', 0);
+        }
+    });
+
+    db.get('SELECT * FROM gold WHERE type = ?', 'pot-gold', (err, row) => {
+        if (!row) {
+            db.run('INSERT INTO gold (type, value) VALUES (?, ?)', 'pot-gold', 0);
+        }
+    });
+});
+
+function updateGold(type, amount) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE gold SET value = value + ? WHERE type = ?', [amount, type], function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                db.get('SELECT value FROM gold WHERE type = ?', type, (err, row) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(row.value);
+                    }
+                });
+            }
+        });
+    });
 }
 
-const potGold = db.prepare('SELECT * FROM gold WHERE type = \'pot-gold\'').get();
-if (!potGold) {
-  db.prepare('INSERT INTO gold (type, value) VALUES (\'pot-gold\', 0)').run();
+function updateBothGold(worldAmount, potAmount) {
+  return Promise.all([
+      updateGold('world-gold', worldAmount),
+      updateGold('pot-gold', potAmount)
+  ]);
 }
 
-function updateWorldGold(amount) {
-  const stmt = db.prepare('UPDATE gold SET value = value + ? WHERE type = \'world-gold\'');
-  stmt.run(amount);
-  const updatedRow = db.prepare('SELECT value FROM gold WHERE type = \'world-gold\'').get();
-  return updatedRow.value;
+function getGoldValueByType(type) {
+  return new Promise((resolve, reject) => {
+      db.get('SELECT value FROM gold WHERE type = ?', type, (err, row) => {
+          if (err) {
+              reject(err);
+          } else {
+              resolve(row ? row.value : null);
+          }
+      });
+  });
 }
 
-function updatePotGold(amount) {
-  const stmt = db.prepare('UPDATE gold SET value = value + ? WHERE type = \'pot-gold\'');
-  stmt.run(amount);
-  const updatedRow = db.prepare('SELECT value FROM gold WHERE type = \'pot-gold\'').get();
-  return updatedRow.value;
-}
-
-module.exports = { db, updateWorldGold, updatePotGold };
+module.exports = { db, updateGold, updateBothGold, getGoldValueByType };
