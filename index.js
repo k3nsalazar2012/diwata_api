@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const { db, updateWorldGold, updatePotGold } = require('./database');
 const app = express();
 const session = require('./session');
 const balances = require('./balances');
@@ -99,6 +100,73 @@ app.post(`${baseAPIURL}gift/asset`, auth.authenticateToken, async(req, res) => {
         console.error('Error in /gift/asset:', error);
         res.status(500).json({ error: 'An unexpected error occurred' });
     }
+});
+
+app.get(`${baseAPIURL}gold/world`, (req, res) => {
+    const row = db.prepare('SELECT value FROM gold WHERE type = \'world-gold\'').get();
+    res.json({ type: 'world-gold', value: row.value });
+  });
+  
+app.get(`${baseAPIURL}gold/pot`, (req, res) => {
+    const row = db.prepare('SELECT value FROM gold WHERE type = \'pot-gold\'').get();
+    res.json({ type: 'pot-gold', value: row.value });
+});
+
+app.get(`${baseAPIURL}activity/rest`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+
+    const amount = 2.5;
+    updateWorldGold(amount);
+    res.json({ status: 'success', activity: 'rest' });
+});
+
+app.get(`${baseAPIURL}activity/bless`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+    
+    const amount = 2.5;
+    updateWorldGold(amount);
+    res.json({ status: 'success', activity: 'bless' });
+});
+
+app.get(`${baseAPIURL}activity/help/person`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+    
+    const amount = 2.5;
+    updateWorldGold(amount);
+    res.json({ status: 'success', activity: 'help person' });
+});
+
+app.get(`${baseAPIURL}activity/help/creature`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+    
+    const amount = 2.5;
+    updateWorldGold(amount);
+    res.json({ status: 'success', activity: 'help creature' });
+});
+
+app.get(`${baseAPIURL}activity/rank`, (req, res) => {
+    const serverKey = req.headers['x-server-key'];
+    if (serverKey !== SERVER_KEY) {
+        return res.sendStatus(403);
+    }
+    
+    const worldAmount = 2;
+    const potAmount = 1;
+    updateWorldGold(worldAmount);
+    updatePotGold(potAmount);
+    res.json({ status: 'success', activity: 'daily rank' });
 });
 
 app.listen(PORT, () => {
