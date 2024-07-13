@@ -1,12 +1,18 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 const { db, updateGold, updateBothGold, getGoldValueByType } = require('./database');
-const app = express();
 const session = require('./session');
 const balances = require('./balances');
 const players = require('./players');
 const inventory = require('./inventory');
 const auth = require('./auth');
+const { initializeClient, spawnTreasureIfNull } = require('./room');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 const PORT = process.env.PORT || 200;
 const baseAPIURL = process.env.BASE_API_URL || "/api/v1/diwata/";
@@ -18,6 +24,7 @@ session.startSession().then(response => {
     if (response) {
         sessionToken = response.token;
         console.log('session started, token: ', sessionToken);
+        spawnTreasureIfNull();
     } else {
         console.log('error starting session');
     }
@@ -31,6 +38,32 @@ setInterval(async () => {
         console.error('error maintaining session:', error);
     }
 }, 3300000); 
+
+
+wss.on('connection', async (ws, req) => {
+    const urlParams = new URLSearchParams(req.url.split('?')[1]);
+    const clientKey = urlParams.get('serverKey');
+
+    if (clientKey !== SERVER_KEY) {
+        ws.close();
+        console.log('Connection closed due to invalid server key');
+        return;
+    }
+
+    console.log('New client connected');
+
+    const initializeReponse = await initializeClient();
+    ws.send(initializeReponse);
+
+    ws.on('message', (message) => {
+        //console.log(`Received: ${message}`);
+        //ws.send(`You said: ${message}`);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
 
 app.get(`${baseAPIURL}auth/token`, (req, res) => {
     const serverKey = req.headers['x-server-key'];
@@ -230,6 +263,6 @@ app.get(`${baseAPIURL}activity/rank`, (req, res) => {
         });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 });
